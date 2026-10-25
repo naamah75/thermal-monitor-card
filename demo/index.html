@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Thermal Monitor — anteprima di sviluppo</title>
+<style>
+:root{color-scheme:light dark;--primary-text-color:light-dark(#20262e,#edf0f5);--secondary-text-color:light-dark(#606e80,#aab7c5);--ha-card-background:light-dark(#fff,#171c23);--card-background-color:var(--ha-card-background);--secondary-background-color:light-dark(#f1f5f8,#242c37);--divider-color:light-dark(#dce4eb,#37404b);--primary-color:light-dark(#087f9e,#65c4df);--text-primary-color:light-dark(#fff,#16212b);--success-color:#2eab82}
+body{background:light-dark(#e9eff4,#10141a);color:var(--primary-text-color);font:14px/1.45 system-ui,sans-serif;margin:0;padding:16px}main{max-width:400px;margin:auto}.caption{color:var(--secondary-text-color);font-size:12px;margin:0 0 10px}.caption strong{font-weight:500;color:var(--primary-text-color)}
+</style></head><body><main><p class="caption"><strong>Anteprima di sviluppo — dati simulati</strong><br>I controlli di questa pagina non comandano Home Assistant.</p><thermal-monitor-card></thermal-monitor-card></main>
+<script type="module">
+import { VERSION } from './thermal-monitor-card.js?v=0.1.0';
+const entities={pixels:'sensor.pixels',occupancy:'binary_sensor.occupied',people_count:'sensor.count',presence_ready:'binary_sensor.ready',reference:'sensor.reference',reference_source:'sensor.source',automatic_offset:'sensor.auto_offset',manual_offset:'number.trim',total_offset:'sensor.total',background:'sensor.background',compensation_status:'sensor.status',auto_switch:'switch.auto',virtual_setpoint:'number.reference',learn_scene:'button.learn',chip_temperature:'sensor.chip',raw_minimum:'sensor.raw_min',raw_maximum:'sensor.raw_max',raw_average:'sensor.raw_average'};
+const states={};let step=0;
+const set=(key,value,unit,attrs={})=>states[entities[key]]={entity_id:entities[key],state:String(value),last_updated:new Date().toISOString(),attributes:{...(unit?{unit_of_measurement:unit}:{}),...attrs}};
+set('occupancy','on');set('people_count',2);set('presence_ready','on');set('reference',22,'°C');set('reference_source','Home Assistant');set('automatic_offset',.4,'°C');set('manual_offset',0,'°C',{min:-15,max:15,step:.25});set('total_offset',.4,'°C');set('background',21.6,'°C');set('compensation_status','Presence detected (holding)');set('auto_switch','on');set('virtual_setpoint',22,'°C',{min:0,max:50,step:.5});set('learn_scene','unknown');set('chip_temperature',29.1,'°C');set('raw_minimum',19.2,'°C');set('raw_maximum',31.8,'°C');set('raw_average',23.4,'°C');
+const card=document.querySelector('thermal-monitor-card');card.setConfig({title:'Thermal Monitor',entities});
+const hass={locale:{language:'it'},states,callService:async(domain,service,data)=>{
+ const entry=states[data.entity_id];if(!entry)throw new Error('Entità demo non trovata');
+ if(domain==='switch')entry.state=service==='turn_on'?'on':'off';
+ if(domain==='number')entry.state=String(data.value);
+ if(data.entity_id===entities.virtual_setpoint)set('reference',data.value,'°C');
+ if(domain==='button'){set('people_count',0);set('occupancy','off');set('presence_ready','on');}
+ entry.last_updated=new Date().toISOString();update();
+}};
+function update(){card.hass={...hass,states:{...states}};}
+function nextFrame(){
+ const raw=new Uint8Array(128);const occupied=Number(states[entities.people_count].state)>0;
+ for(let y=0;y<8;y++)for(let x=0;x<8;x++){
+  let value=20.4+.6*Math.sin(x*.8+y)+.25*Math.sin(step/3);
+  if(occupied){value+=10.8*Math.exp(-((x-2-.05*Math.sin(step))**2/1.2+(y-3.1)**2/2.1));value+=10.5*Math.exp(-((x-5.5)**2/1.1+(y-4.2)**2/2.4));}
+  value+=Number(states[entities.total_offset].state);let word=Math.round(Math.abs(value)*4);if(value<0)word|=0x800;const i=y*8+x;raw[i*2]=word&255;raw[i*2+1]=word>>8;
+ }
+ set('pixels',btoa(String.fromCharCode(...raw)));step++;update();
+}
+nextFrame();setInterval(nextFrame,1000);
+</script></body></html>

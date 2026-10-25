@@ -1,0 +1,5 @@
+{
+  "name": "Thermal Monitor Card",
+  "filename": "thermal-monitor-card.js",
+  "homeassistant": "2026.10.0"
+}

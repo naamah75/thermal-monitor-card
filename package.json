@@ -1,0 +1,17 @@
+{
+  "name": "thermal-monitor-card",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Home Assistant thermal canvas, occupancy and compensation card",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "node --test test/*.test.js",
+    "check": "npm run build && npm test",
+    "demo": "node scripts/preview.js"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "happy-dom": "21.0.4"
+  }
+}

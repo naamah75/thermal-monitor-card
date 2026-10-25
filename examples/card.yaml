@@ -1,0 +1,26 @@
+type: custom:thermal-monitor-card
+title: Thermal Monitor
+stale_after: 8
+interpolate: true
+auto_range: true
+minimum_temperature: 18
+maximum_temperature: 34
+entities:
+  pixels: sensor.thermal_sensor_calibrated_pixels
+  occupancy: binary_sensor.thermal_human_presence_estimate
+  people_count: sensor.thermal_estimated_people_count
+  presence_ready: binary_sensor.thermal_presence_model_ready
+  reference: sensor.thermal_reference_temperature
+  reference_source: sensor.thermal_temperature_reference_source
+  automatic_offset: sensor.thermal_automatic_temperature_offset
+  manual_offset: number.thermal_thermal_temperature_offset
+  total_offset: sensor.thermal_total_temperature_offset
+  background: sensor.thermal_scene_background_temperature
+  compensation_status: sensor.thermal_temperature_compensation_status
+  auto_switch: switch.thermal_automatic_temperature_compensation
+  virtual_setpoint: number.thermal_virtual_reference_setpoint
+  learn_scene: button.thermal_learn_empty_scene
+  chip_temperature: sensor.thermal_thermal_sensor_temperature
+  raw_minimum: sensor.thermal_thermal_sensor_min
+  raw_maximum: sensor.thermal_thermal_sensor_max
+  raw_average: sensor.thermal_thermal_sensor_avg
